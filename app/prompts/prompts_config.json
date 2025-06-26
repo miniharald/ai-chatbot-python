@@ -1,0 +1,41 @@
+{
+  "prompts": {
+    "default": {
+      "name": "Default Assistant",
+      "description": "General-purpose helpful assistant",
+      "file": "default.txt",
+      "category": "general"
+    },
+    "coding_assistant": {
+      "name": "Coding Assistant",
+      "description": "Expert programmer and code reviewer",
+      "file": "coding_assistant.txt",
+      "category": "programming"
+    },
+    "creative_writer": {
+      "name": "Creative Writer",
+      "description": "Storytelling and creative writing assistant",
+      "file": "creative_writer.txt",
+      "category": "creative"
+    },
+    "tutor": {
+      "name": "Tutor",
+      "description": "Educational assistant for learning",
+      "file": "tutor.txt",
+      "category": "education"
+    },
+    "business_advisor": {
+      "name": "Business Advisor",
+      "description": "Strategic business consultant",
+      "file": "business_advisor.txt",
+      "category": "business"
+    },
+    "research_assistant": {
+      "name": "Research Assistant",
+      "description": "Data analysis and research specialist",
+      "file": "research_assistant.txt",
+      "category": "research"
+    }
+  },
+  "current_prompt": "coding_assistant"
+}

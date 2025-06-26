@@ -1,9 +1,10 @@
-# AI Chatbot with Multi-Model Support
+# AI Chatbot with Multi-Model Support & Enhanced Prompt Management
 
 ## Features
 
 - **Multiple OpenAI Models**: Support for GPT-4o, GPT-4o Mini, and GPT-3.5 Turbo
 - **Model Switching**: Change models during conversation
+- **Enhanced Prompt Management**: Multiple AI personas and custom prompts
 - **Cost Estimation**: See estimated costs before making requests
 - **Configuration Persistence**: Settings are saved between sessions
 - **Interactive Commands**: Use commands starting with `/` for special actions
@@ -19,9 +20,24 @@ python main.py
 - `/models` - View available models and their details
 - `/switch` - Change the current model
 - `/current` - Show current model information
+- `/prompts` - View available prompt templates
+- `/persona` - Switch between AI personas
+- `/prompt` - Show current prompt information
+- `/create` - Create custom prompt templates
 - `/cost` - Show estimated cost for next message
 - `/help` - Show available commands
 - `exit` - Exit the program
+
+### Available Prompt Templates
+
+| Persona | Category | Best For |
+|---------|----------|----------|
+| Default Assistant | General | General-purpose conversations |
+| Coding Assistant | Programming | Code review, debugging, programming help |
+| Creative Writer | Creative | Storytelling, creative writing, brainstorming |
+| Tutor | Education | Learning, explanations, teaching |
+| Business Advisor | Business | Strategy, planning, business advice |
+| Research Assistant | Research | Data analysis, research methodology |
 
 ### Model Information
 

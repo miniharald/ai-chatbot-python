@@ -28,6 +28,120 @@ AVAILABLE_MODELS = {
     }
 }
 
+class PromptManager:
+    def __init__(self):
+        self.prompts_dir = "app/prompts"
+        self.config_file = os.path.join(self.prompts_dir, "prompts_config.json")
+        self.prompts = {}
+        self.current_prompt = "default"
+        self.load_prompts_config()
+    
+    def load_prompts_config(self):
+        try:
+            if os.path.exists(self.config_file):
+                with open(self.config_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    self.prompts = config.get('prompts', {})
+                    self.current_prompt = config.get('current_prompt', 'default')
+            else:
+
+                self.create_default_config()
+        except Exception as e:
+            print(f"Warning: Could not load prompts config: {e}")
+            self.create_default_config()
+    
+    def create_default_config(self):
+        self.prompts = {
+            "default": {
+                "name": "Default Assistant",
+                "description": "General-purpose helpful assistant",
+                "file": "default.txt",
+                "category": "general"
+            }
+        }
+        self.current_prompt = "default"
+        self.save_config()
+    
+    def save_config(self):
+        try:
+            config = {
+                "prompts": self.prompts,
+                "current_prompt": self.current_prompt
+            }
+            with open(self.config_file, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save prompts config: {e}")
+    
+    def get_available_prompts(self) -> Dict:
+        return self.prompts
+    
+    def get_current_prompt(self) -> Dict:
+        if self.current_prompt in self.prompts:
+            return {
+                'id': self.current_prompt,
+                'info': self.prompts[self.current_prompt]
+            }
+        return {
+            'id': 'default',
+            'info': {'name': 'Default', 'description': 'Default assistant'}
+        }
+    
+    def set_prompt(self, prompt_id: str) -> bool:
+        if prompt_id in self.prompts:
+            self.current_prompt = prompt_id
+            self.save_config()
+            return True
+        return False
+    
+    def load_prompt_content(self, prompt_id: Optional[str] = None) -> str:
+        prompt_to_use = prompt_id or self.current_prompt
+        
+        if prompt_to_use not in self.prompts:
+            prompt_to_use = "default"
+        
+        prompt_info = self.prompts.get(prompt_to_use, {})
+        filename = prompt_info.get('file', 'default.txt')
+        filepath = os.path.join(self.prompts_dir, filename)
+        
+        try:
+            if os.path.exists(filepath):
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    return f.read().strip()
+            else:
+                fallback_path = os.path.join(self.prompts_dir, 'default.txt')
+                if os.path.exists(fallback_path):
+                    with open(fallback_path, 'r', encoding='utf-8') as f:
+                        return f.read().strip()
+                else:
+                    return "You are a helpful AI assistant."
+        except Exception as e:
+            print(f"Warning: Could not load prompt: {e}")
+            return "You are a helpful AI assistant."
+    
+    def create_custom_prompt(self, prompt_id: str, name: str, description: str, content: str, category: str = "custom") -> bool:
+        try:
+            filename = f"{prompt_id}.txt"
+            filepath = os.path.join(self.prompts_dir, filename)
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(content)
+            
+            self.prompts[prompt_id] = {
+                "name": name,
+                "description": description,
+                "file": filename,
+                "category": category
+            }
+            
+            self.save_config()
+            return True
+        except Exception as e:
+            print(f"Error creating custom prompt: {e}")
+            return False
+
+prompt_manager = PromptManager()
+
 class ChatbotConfig:
     def __init__(self):
         self.model = "gpt-4o-mini"
@@ -61,9 +175,20 @@ class ChatbotConfig:
 
 config = ChatbotConfig()
 
-def load_system_prompt():
-    with open("app/prompts/system_prompt.txt", "r", encoding="utf-8") as f:
-        return f.read()
+def load_system_prompt(prompt_id: Optional[str] = None):
+    return prompt_manager.load_prompt_content(prompt_id)
+
+def get_available_prompts():
+    return prompt_manager.get_available_prompts()
+
+def set_prompt(prompt_id: str) -> bool:
+    return prompt_manager.set_prompt(prompt_id)
+
+def get_current_prompt():
+    return prompt_manager.get_current_prompt()
+
+def create_custom_prompt(prompt_id: str, name: str, description: str, content: str, category: str = "custom") -> bool:
+    return prompt_manager.create_custom_prompt(prompt_id, name, description, content, category)
 
 def get_available_models():
     return AVAILABLE_MODELS
