@@ -3,6 +3,7 @@ import json
 from typing import List, Dict, Optional
 from dotenv import load_dotenv
 from openai import OpenAI
+from .database import conversation_db
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -247,3 +248,86 @@ def estimate_cost(messages: List[Dict[str, str]], model: Optional[str] = None) -
         "output": round(output_cost, 6),
         "total": round(input_cost + output_cost, 6)
     }
+
+def create_conversation(title: str = None) -> int:
+    if not title:
+        current_model = get_current_model()
+        current_prompt = get_current_prompt()
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        title = f"Chat {timestamp}"
+    
+    return conversation_db.create_conversation(
+        title=title,
+        model=config.model,
+        prompt_id=prompt_manager.current_prompt
+    )
+
+def save_message_to_db(conversation_id: int, role: str, content: str, 
+                      tokens_used: int = 0, cost: float = 0.0):
+    """Save a message to the database"""
+    return conversation_db.add_message(conversation_id, role, content, tokens_used, cost)
+
+def load_conversation(conversation_id: int) -> List[Dict[str, str]]:
+    """Load a conversation from the database"""
+    messages = conversation_db.get_conversation_messages(conversation_id)
+    
+    chat_messages = []
+    for msg in messages:
+        if msg['role'] in ['system', 'user', 'assistant']:
+            chat_messages.append({
+                'role': msg['role'],
+                'content': msg['content']
+            })
+    
+    return chat_messages
+
+def list_recent_conversations(limit: int = 20) -> List[Dict]:
+    """List recent conversations"""
+    return conversation_db.list_conversations(limit)
+
+def search_conversation_history(query: str, limit: int = 10) -> List[Dict]:
+    """Search through conversation history"""
+    return conversation_db.search_conversations(query, limit)
+
+def delete_conversation_history(conversation_id: int) -> bool:
+    """Delete a conversation"""
+    return conversation_db.delete_conversation(conversation_id)
+
+def get_conversation_stats() -> Dict:
+    """Get usage statistics"""
+    return conversation_db.get_stats()
+
+def export_conversation(conversation_id: int, format: str = "json") -> str:
+    """Export a conversation in the specified format"""
+    messages = conversation_db.get_conversation_messages(conversation_id)
+    info = conversation_db.get_conversation_info(conversation_id)
+    
+    if format.lower() == "json":
+        return json.dumps({
+            "conversation_info": info,
+            "messages": messages
+        }, indent=2, default=str)
+    
+    elif format.lower() == "txt":
+        lines = [f"Conversation: {info['title']}"]
+        lines.append(f"Model: {info['model']}")
+        lines.append(f"Created: {info['created_at']}")
+        lines.append("=" * 50)
+        lines.append("")
+        
+        for msg in messages:
+            if msg['role'] == 'user':
+                lines.append(f"You: {msg['content']}")
+            elif msg['role'] == 'assistant':
+                lines.append(f"AI: {msg['content']}")
+            lines.append("")
+        
+        return "\n".join(lines)
+    
+    else:
+        raise ValueError(f"Unsupported export format: {format}")
+
+def cleanup_duplicate_system_messages() -> int:
+    """Clean up duplicate system messages from the database"""
+    return conversation_db.clean_duplicate_system_messages()
