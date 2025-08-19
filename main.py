@@ -394,14 +394,13 @@ def chat():
         print(f"💰 Estimated cost: ${cost['total']:.6f}")
         
         save_message_to_db(conversation_id, "user", user_input)
-        
         messages.append({"role": "user", "content": user_input})
-        reply = ask_chatbot(messages)
-        
+        print("\nAI: ", end="", flush=True)
+        from app.chatbot import ask_chatbot_stream
+        reply = ask_chatbot_stream(messages)
         save_message_to_db(conversation_id, "assistant", reply, cost=cost['total'])
-        
         messages.append({"role": "assistant", "content": reply})
-        print(f"\nAI: {reply}\n")
+        print()
 
 if __name__ == "__main__":
     chat()

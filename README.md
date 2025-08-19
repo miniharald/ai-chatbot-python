@@ -9,6 +9,8 @@
 - **Configuration Persistence**: Settings are saved between sessions
 - **Interactive Commands**: Use commands starting with `/` for special actions
 - **Conversation History**: Automatic saving and management of conversation history
+- **Streaming Responses**: Real-time response streaming to the terminal
+- **Stop Feature**: Interrupt responses anytime with `Ctrl+C`
 
 ## Usage
 
@@ -91,6 +93,19 @@ You: /stats
 ```
 
 **Note:** Your chat history is stored locally and is private by default. The database file is ignored by git for privacy.
+
+## ⚡ Streaming Responses & Stop Feature
+
+- **Real-time streaming:** AI responses appear in your terminal as they are generated, for a ChatGPT-like experience.
+- **Interrupt anytime:** Press `Ctrl+C` during a response to stop streaming and return to the prompt. The bot will continue running and save the partial response.
+
+### Example
+```bash
+You: Tell me a story about a robot
+AI: Once upon a time... (response streams in real time)
+# Press Ctrl+C to stop the response early
+⏹️ Response stopped by user.
+```
 
 ## Best Practices Implemented
 

@@ -228,6 +228,39 @@ def ask_chatbot(messages: List[Dict[str, str]], model: Optional[str] = None) -> 
     except Exception as e:
         return f"Error: {str(e)}"
 
+def ask_chatbot_stream(messages: List[Dict[str, str]], model: Optional[str] = None):
+    """
+    Stream the chatbot response chunk by chunk (for CLI streaming)
+    Returns the full response as a string. User can stop with Ctrl+C.
+    """
+    try:
+        model_to_use = model or config.model
+        if model_to_use not in AVAILABLE_MODELS:
+            raise ValueError(f"Model {model_to_use} not available")
+        model_max_tokens = AVAILABLE_MODELS[model_to_use]["max_tokens"]
+        effective_max_tokens = min(config.max_tokens, model_max_tokens)
+        response = client.chat.completions.create(
+            model=model_to_use,
+            messages=messages,
+            temperature=config.temperature,
+            max_tokens=effective_max_tokens,
+            stream=True
+        )
+        full_reply = ""
+        try:
+            for chunk in response:
+                delta = getattr(chunk.choices[0].delta, "content", None)
+                if delta:
+                    print(delta, end="", flush=True)
+                    full_reply += delta
+        except KeyboardInterrupt:
+            print("\n⏹️ Response stopped by user.")
+        print()  # Newline after streaming
+        return full_reply
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return ""
+
 def estimate_cost(messages: List[Dict[str, str]], model: Optional[str] = None) -> Dict[str, float]:
     model_to_use = model or config.model
     if model_to_use not in AVAILABLE_MODELS:
