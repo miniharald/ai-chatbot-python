@@ -8,6 +8,7 @@
 - **Cost Estimation**: See estimated costs before making requests
 - **Configuration Persistence**: Settings are saved between sessions
 - **Interactive Commands**: Use commands starting with `/` for special actions
+- **Conversation History**: Automatic saving and management of conversation history
 
 ## Usage
 
@@ -27,6 +28,12 @@ python main.py
 - `/cost` - Show estimated cost for next message
 - `/help` - Show available commands
 - `exit` - Exit the program
+- `/history` — View recent conversations
+- `/load` — Resume a previous conversation
+- `/search` — Search conversation history
+- `/export` — Export a conversation to TXT or JSON
+- `/delete` — Delete a conversation
+- `/stats` — Show usage statistics (total chats, messages, cost, etc.)
 
 ### Available Prompt Templates
 
@@ -53,6 +60,37 @@ Settings are automatically saved in `config.json`:
 - `model`: Current model selection
 - `temperature`: Response creativity (0.0-2.0)
 - `max_tokens`: Maximum response length
+
+## 🗃️ Conversation History & SQLite Integration
+
+Your chat history is automatically saved to a local SQLite database (`conversations.db`). This enables:
+
+- **Automatic saving** of all conversations and messages
+- **Resume any conversation** with `/load`
+- **View recent conversations** with `/history`
+- **Search your chat history** with `/search`
+- **Export conversations** to TXT or JSON with `/export`
+- **Delete conversations** with `/delete`
+- **View usage statistics** with `/stats`
+
+### Example Usage
+
+```bash
+You: /history
+# Shows a list of recent conversations
+You: /load
+# Loads a selected conversation so you can continue
+You: /search
+# Finds conversations by keyword
+You: /export
+# Saves a conversation to a file
+You: /delete
+# Removes a conversation from history
+You: /stats
+# Shows usage statistics
+```
+
+**Note:** Your chat history is stored locally and is private by default. The database file is ignored by git for privacy.
 
 ## Best Practices Implemented
 
