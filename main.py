@@ -22,6 +22,7 @@ from app.chatbot import (
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.syntax import Syntax
+import os
 
 console = Console()
 
@@ -145,7 +146,8 @@ def create_new_custom_prompt():
     if create_custom_prompt(prompt_id, name, description, content, category):
         print(f"✅ Custom prompt '{name}' created successfully!")
         
-        switch = input("Switch to this prompt now? (y/n): ").strip().lower()
+        switch = input("Switch to this prompt now? (y/n): ")
+
         if switch == 'y' or switch == 'yes':
             set_prompt(prompt_id)
             print(f"✅ Switched to '{name}' prompt")
@@ -275,13 +277,13 @@ def display_help():
     print("  /persona   - Change current prompt/persona")
     print("  /prompt    - Show current prompt")
     print("  /create    - Create custom prompt")
+    print("  /upload    - Upload a TXT or Python file for analysis/review")
     print("  /history   - View recent conversations")
     print("  /load      - Load a previous conversation")
     print("  /search    - Search conversation history")
     print("  /delete    - Delete a conversation")
     print("  /export    - Export a conversation")
     print("  /stats     - Show usage statistics")
-    print("  /cleanup   - Remove duplicate system messages")
     print("  /cost      - Show estimated cost for next message")
     print("  /help      - Show this help")
     print("  exit       - Exit the program")
@@ -347,6 +349,9 @@ def handle_command(command: str, messages: list) -> bool:
     elif command == "/help":
         display_help()
         return True
+    elif command == "/upload":
+        upload_and_analyze_file()
+        return True
     
     return False
 
@@ -382,6 +387,34 @@ def render_ai_reply(reply: str):
     else:
         # Just render as Markdown
         console.print(Markdown(reply))
+
+def upload_and_analyze_file():
+    """Handle file upload and send content to AI for analysis/review"""
+    filename = input("Enter the path to the file to upload (TXT or .py): ").strip()
+    if not filename or not os.path.isfile(filename):
+        print(f"❌ File '{filename}' not found.")
+        return
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".txt", ".py"]:
+        print("❌ Only TXT and Python (.py) files are supported in this demo.")
+        return
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            content = f.read()
+        if ext == ".py":
+            prompt = f"Here is my Python code:\n\n{content}\n\nCan you review it and suggest improvements?"
+        else:
+            prompt = f"Here is a document:\n\n{content}\n\nSummarize the main points."
+        messages = [
+            {"role": "system", "content": load_system_prompt()},
+            {"role": "user", "content": prompt}
+        ]
+        print("\nAI analysis:")
+        from app.chatbot import ask_chatbot_stream
+        reply = ask_chatbot_stream(messages)
+        render_ai_reply(reply)
+    except Exception as e:
+        print(f"❌ Error reading or analyzing file: {e}")
 
 def chat():
     messages = [

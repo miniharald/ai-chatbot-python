@@ -124,6 +124,22 @@ def greet(name):
 # The code block will be highlighted in your terminal!
 ```
 
+## 📂 File Upload & Analysis
+
+- **Upload files for AI analysis:** Use `/upload` to send a TXT or Python file to the chatbot.
+- **Code review:** The bot will review Python files and suggest improvements.
+- **Document summary:** The bot will summarize the main points of TXT documents.
+
+### Example
+```bash
+You: /upload
+Enter the path to the file to upload (TXT or .py): myscript.py
+AI analysis:
+# The bot reviews your code and gives feedback, with Markdown and code highlighting.
+```
+
+Supported file types: `.txt`, `.py`
+
 ## Best Practices Implemented
 
 1. **Error Handling**: Graceful handling of API errors
