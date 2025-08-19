@@ -19,6 +19,11 @@ from app.chatbot import (
     export_conversation,
     cleanup_duplicate_system_messages
 )
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.syntax import Syntax
+
+console = Console()
 
 def display_available_models():
     models = get_available_models()
@@ -345,6 +350,39 @@ def handle_command(command: str, messages: list) -> bool:
     
     return False
 
+def render_ai_reply(reply: str):
+    """Render AI reply with Markdown and code highlighting"""
+    # Detect code blocks and render with syntax highlighting
+    if "```" in reply:
+        # Split into Markdown blocks
+        lines = reply.splitlines()
+        in_code = False
+        code_lang = ""
+        code_lines = []
+        md_lines = []
+        for line in lines:
+            if line.startswith("```"):
+                if not in_code:
+                    in_code = True
+                    code_lang = line[3:].strip() or "python"
+                    code_lines = []
+                else:
+                    in_code = False
+                    # Render code block
+                    code = "\n".join(code_lines)
+                    console.print(Syntax(code, code_lang, theme="monokai", line_numbers=False))
+            elif in_code:
+                code_lines.append(line)
+            else:
+                md_lines.append(line)
+        # Render remaining Markdown
+        md = "\n".join(md_lines)
+        if md.strip():
+            console.print(Markdown(md))
+    else:
+        # Just render as Markdown
+        console.print(Markdown(reply))
+
 def chat():
     messages = [
         {"role": "system", "content": load_system_prompt()}
@@ -400,7 +438,7 @@ def chat():
         reply = ask_chatbot_stream(messages)
         save_message_to_db(conversation_id, "assistant", reply, cost=cost['total'])
         messages.append({"role": "assistant", "content": reply})
-        print()
+        render_ai_reply(reply)
 
 if __name__ == "__main__":
     chat()

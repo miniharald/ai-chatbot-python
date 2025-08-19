@@ -107,6 +107,23 @@ AI: Once upon a time... (response streams in real time)
 ⏹️ Response stopped by user.
 ```
 
+## 🎨 Rich Markdown & Code Output
+
+- **Formatting:** AI responses are rendered with Markdown, including bold, italics, lists, and tables.
+- **Code highlighting:** Code blocks are automatically detected and displayed with syntax highlighting.
+- **Tables and more:** Markdown tables and other elements are shown in the terminal for easy reading.
+
+### Example
+```bash
+You: Show me a Python function
+AI:
+```python
+def greet(name):
+    print(f"Hello, {name}!")
+```
+# The code block will be highlighted in your terminal!
+```
+
 ## Best Practices Implemented
 
 1. **Error Handling**: Graceful handling of API errors
